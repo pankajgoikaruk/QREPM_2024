@@ -556,7 +556,7 @@ class Quadtree:
             "Crime_count": point.Crime_count,
             "Prediction": point.Prediction
         }
-        # sample
+        # sample input
         return point_dict
 
     # Convert a datetime format to Unix timestamp.
