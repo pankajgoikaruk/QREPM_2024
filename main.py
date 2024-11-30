@@ -24,7 +24,7 @@ prp = Preprocess()
 quad = InitialQuadtree()
 
 # Step 1: Load crime data from csv file.
-data_path = 'C:/Users/goika/Quadtree/data/USA_Crime_2008_to_2009.csv'
+data_path = 'C:/Users/wwwsa/PycharmProjects/data/USA_Crime_2008_to_2009.csv'
 data = prp.data_import(data_path)
 
 # Step 2: Extract important columns.
