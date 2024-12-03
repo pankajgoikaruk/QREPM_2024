@@ -31,38 +31,6 @@ if not os.path.exists(dcr_dir_csv):
 # Optional: Record the start time
 start_time = time.time()
 
-# # Step 1: Load crime data from csv file.
-# data_path = 'C:/Users/wwwsa/PycharmProjects/data/USA_Crime_2008_to_2009.csv'
-# data = prp.data_import(data_path)
-#
-# # Step 2: Extract important columns.
-# df = data[['CMPLNT_FR_DT', 'Longitude', 'Latitude']]
-#
-# # Step 3:  Check null values.
-# df = prp.null_values_check(df)
-#
-# # Step 4: Convert date time into DateTime format.
-# df = prp.datetime_convert(df)
-#
-# # # Optional: Get sample data.
-# # start_date = '2008-01-01'
-# # end_date = '2008-12-31'
-# # df = prp.get_sample_data(df, start_date, end_date)
-#
-# # Step 5: Crime Count and add new column
-# df = prp.crime_total_count(df)
-#
-# # Step 6: Adding some new features to Dataframe and Scaling Longitude and Latitude.
-# df = prp.create_new_features(df)
-#
-# # Step 7: Data Split and Added Prediction Column with Zero Value.
-# seen_df, unseen_df = prp.train_val_test_df_split(df, train_size=0.8)
-# seen_df = quad.set_pred_zero(seen_df)
-# unseen_df = quad.set_pred_zero(unseen_df)
-#
-# print(f"Seen Data: \n {seen_df} \n")
-# print(f"Unseen Data: \n {unseen_df}")
-
 data_file_name = "USA_Crime_2008_to_2009.csv"
 if not os.path.exists(f"{preprocess_dir_csv}/pre_pro_{data_file_name}"):
     # Step 1: Load crime data from csv file.
