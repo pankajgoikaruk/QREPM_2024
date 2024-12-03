@@ -1,8 +1,20 @@
 import pandas as pd
 from preprocess import Preprocess
 from quadtree import InitialQuadtree
+from visualise import Visualise
 import os
 import time
+import logging
+
+# Created an object of classes.
+prp = Preprocess()
+quad = InitialQuadtree()
+vis = Visualise()
+
+# Directory for saving pre-processed data.
+preprocess_dir_csv = 'preprocess_data_csv'
+if not os.path.exists(preprocess_dir_csv):
+    os.makedirs(preprocess_dir_csv)
 
 # output_dir_csv = f"E:/Quadtree Ensemble Zero Pred Refined Model Increased MinMax Scaler/unseen_output_csv"
 output_dir_csv = 'unseen_output_csv'
@@ -19,41 +31,83 @@ if not os.path.exists(dcr_dir_csv):
 # Optional: Record the start time
 start_time = time.time()
 
-# Created an object of classes.
-prp = Preprocess()
-quad = InitialQuadtree()
+# # Step 1: Load crime data from csv file.
+# data_path = 'C:/Users/wwwsa/PycharmProjects/data/USA_Crime_2008_to_2009.csv'
+# data = prp.data_import(data_path)
+#
+# # Step 2: Extract important columns.
+# df = data[['CMPLNT_FR_DT', 'Longitude', 'Latitude']]
+#
+# # Step 3:  Check null values.
+# df = prp.null_values_check(df)
+#
+# # Step 4: Convert date time into DateTime format.
+# df = prp.datetime_convert(df)
+#
+# # # Optional: Get sample data.
+# # start_date = '2008-01-01'
+# # end_date = '2008-12-31'
+# # df = prp.get_sample_data(df, start_date, end_date)
+#
+# # Step 5: Crime Count and add new column
+# df = prp.crime_total_count(df)
+#
+# # Step 6: Adding some new features to Dataframe and Scaling Longitude and Latitude.
+# df = prp.create_new_features(df)
+#
+# # Step 7: Data Split and Added Prediction Column with Zero Value.
+# seen_df, unseen_df = prp.train_val_test_df_split(df, train_size=0.8)
+# seen_df = quad.set_pred_zero(seen_df)
+# unseen_df = quad.set_pred_zero(unseen_df)
+#
+# print(f"Seen Data: \n {seen_df} \n")
+# print(f"Unseen Data: \n {unseen_df}")
 
-# Step 1: Load crime data from csv file.
-data_path = 'C:/Users/wwwsa/PycharmProjects/data/USA_Crime_2008_to_2009.csv'
-data = prp.data_import(data_path)
+data_file_name = "USA_Crime_2008_to_2009.csv"
+if not os.path.exists(f"{preprocess_dir_csv}/pre_pro_{data_file_name}"):
+    # Step 1: Load crime data from csv file.
+    data_path = f'C:/Users/wwwsa/PycharmProjects/data/{data_file_name}'
+    data = prp.data_import(data_path)
 
-# Step 2: Extract important columns.
-df = data[['CMPLNT_FR_DT', 'Longitude', 'Latitude']]
+    # Step 2: Extract important columns.
+    required_columns = ['CMPLNT_FR_DT', 'Longitude', 'Latitude']
+    df = data[required_columns]
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Missing required columns: {col}")
 
-# Step 3:  Check null values.
-df = prp.null_values_check(df)
+    # Step 3:  Check null values.
+    df = prp.null_values_check(df)
 
-# Step 4: Convert date time into DateTime format.
-df = prp.datetime_convert(df)
+    # Step 4: Convert date time into DateTime format.
+    df = prp.datetime_convert(df)
 
-# # Optional: Get sample data.
-# start_date = '2008-01-01'
-# end_date = '2008-12-31'
-# df = prp.get_sample_data(df, start_date, end_date)
+    # # Optional: Get sample data.
+    # start_date = '2008-01-01'
+    # end_date = '2008-12-31'
+    # df = prp.get_sample_data(df, start_date, end_date)
 
-# Step 5: Crime Count and add new column
-df = prp.crime_total_count(df)
+    # Step 5: Crime Count and add new column
+    df = prp.crime_total_count(df)
 
-# Step 6: Adding some new features to Dataframe and Scaling Longitude and Latitude.
-df = prp.create_new_features(df)
+    # Step 6: Adding some new features to Dataframe and Scaling Longitude and Latitude.
+    df = prp.create_new_features(df)
 
-# Step 7: Data Split and Added Prediction Column with Zero Value.
-seen_df, unseen_df = prp.train_val_test_df_split(df, train_size=0.8)
-seen_df = quad.set_pred_zero(seen_df)
-unseen_df = quad.set_pred_zero(unseen_df)
+    # Step 7: Data Split and Added Prediction Column with Zero Value.
+    seen_df, unseen_df = prp.train_val_test_df_split(df, train_size=0.8)
+    seen_df = quad.set_pred_zero(seen_df)
+    unseen_df = quad.set_pred_zero(unseen_df)
 
-print(f"Seen Data: \n {seen_df} \n")
-print(f"Unseen Data: \n {unseen_df}")
+    # Save CSV file.
+    version = "v1"
+    seen_df.to_csv(f"{preprocess_dir_csv}/pre_pro_seen_{data_file_name}", index=False)
+    unseen_df.to_csv(f"{preprocess_dir_csv}/pre_pro_unseen_{data_file_name}", index=False)
+    print(f"Preprocessed data saved at: {preprocess_dir_csv}/pre_pro_{data_file_name}")
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Data preprocessing completed successfully.")
+else:
+    seen_df = pd.read_csv(f"{preprocess_dir_csv}/pre_pro_seen{data_file_name}", parse_dates=['CMPLNT_FR_DT'])
+    unseen_df = pd.read_csv(f"{preprocess_dir_csv}/pre_pro_unseen{data_file_name}", parse_dates=['CMPLNT_FR_DT'])
 
 
 ''' ################# CREATING QUADTREE AND DISTRIBUTING DATA POINTS INTO LIST OF DATA FRAMES ################# '''
@@ -72,7 +126,8 @@ print(f"Columns of p_predictors are: {p_predictors} \n")
 
 quadtree.traverse_quadtree_evaluation(unseen_df, df_len, p_predictors)
 
-
+# Step 11: Visualise the quadtree
+vis.visualize_quadtree(quadtree)
 
 
 
